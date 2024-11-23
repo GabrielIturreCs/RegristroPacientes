@@ -1,0 +1,54 @@
+{
+  "name": "facturas.io",
+  "productName": "Facturas Automatizada",
+  "version": "1.0.0",
+  "description": "Genera comprobantes o facturas de forma automática",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=release-builds",
+    "package-win": "electron-packager . --overwrite --platform=win32 --arch=x64 --out=release-builds",
+    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=release-builds"
+  },
+  "keywords": [],
+  "author": "Gabriel Iturre",
+  "license": "ISCG",
+  "dependencies": {
+    "axios": "^1.7.4",
+    "bootstrap": "^5.3.3",
+    "electron-reload": "^2.0.0-alpha.1",
+    "express": "^4.19.2",
+    "html-pdf": "^3.0.1",
+    "mysql2": "^3.11.4",
+    "pdf-lib": "^1.17.1",
+    "puppeteer": "^23.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "resend": "^4.0.0",
+    "sequelize": "^6.37.5",
+    "whatsapp-web.js": "^1.25.0"
+  },
+  "devDependencies": {
+    "electron": "^32.0.1",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.miempresa.miapp",
+    "productName": "Facturas Automatizada",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/win/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "index.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*"
+    ]
+  }
+}

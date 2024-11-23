@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s  # Frecuencia con la que se recogen las métricas
+
+scrape_configs:
+  - job_name: 'telegraf'
+    static_configs:
+      - targets: ['telegraf:9273']  # Cambia esto si Telegraf está en otra dirección o puerto

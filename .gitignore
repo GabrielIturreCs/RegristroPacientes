@@ -1,0 +1,20 @@
+# Ignorar node_modules y carpetas de construcción
+node_modules/
+dist/
+build/
+
+# Ignorar archivos de entorno y logs
+.env
+*.log
+
+# Ignorar carpetas de salida de Electron
+release-builds/
+
+# Ignorar archivos de MySQL y backups
+master-data/*.sock
+master-data/*.cnf
+master-data/*.index
+master-data/ib_buffer_pool
+backup-data/*.sql
+
+slave-data/mysql.sock

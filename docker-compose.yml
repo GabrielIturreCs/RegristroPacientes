@@ -1,0 +1,161 @@
+services:
+  # MySQL Master
+  mysql-master:
+    image: mysql:8.0
+    container_name: mysql-master
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: usersdb
+      MYSQL_REPLICATION_USER: root
+      MYSQL_REPLICATION_PASSWORD: root
+    ports:
+      - "3313:3306"
+    networks:
+      - red-hia
+    volumes:
+      - ./master-data:/var/lib/mysql
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --gtid_mode=ON
+      --enforce_gtid_consistency=TRUE
+      --master_info_repository=TABLE
+      --relay_log_info_repository=TABLE
+      --log_slave_updates=TRUE
+      --read-only=FALSE
+
+  # MySQL Slave
+  mysql-slave:
+    image: mysql:8.0
+    container_name: mysql-slave
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: usersdb
+      MYSQL_REPLICATION_USER: root
+      MYSQL_REPLICATION_PASSWORD: root
+    ports:
+      - "3315:3306"
+    networks:
+      - red-hia
+    depends_on:
+      - mysql-master
+    volumes:
+      - ./slave-data:/var/lib/mysql
+    command: >
+      --server-id=2
+      --relay-log=mysql-relay-bin
+      --log-bin=mysql-bin
+      --read-only=1
+      --binlog-format=ROW
+      --gtid_mode=ON
+      --enforce_gtid_consistency=TRUE
+      --master_info_repository=TABLE
+      --relay_log_info_repository=TABLE
+      --log_slave_updates=TRUE
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin15
+    environment:
+      PMA_HOST: mysql-master
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8081:80"
+    networks:
+      - red-hia
+    depends_on:
+      - mysql-master
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "8085:80"
+    networks:
+      - red-hia
+
+  # Backend
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    environment:
+      MYSQL_HOST: mysql-master
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: usersdb
+    networks:
+      - red-hia
+    depends_on:
+      - mysql-master
+    ports:
+      - "3000:3000"
+
+  # Telegraf
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    networks:
+      - red-hia
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      - mysql-master
+      - mysql-slave
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9092:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    networks:
+      - red-hia
+
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3002:3000"
+    networks:
+      - red-hia
+
+  # Backup Service
+  backup:
+    image: mysql:8.0
+    container_name: mysql-backup
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - red-hia
+    depends_on:
+      - mysql-master
+    volumes:
+      - ./backup-data:/backup
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "sleep 30 && 
+      while true; do
+      mysqldump --verbose --single-transaction --set-gtid-purged=OFF -h mysql-master -uroot -proot usersdb > /backup/db_backup_$(date +%F_%T).sql &&
+      echo 'Backup completed. Sleeping for 24 hours.' &&
+      sleep 86400;
+      done"
+
+networks:
+  red-hia:
+    driver: bridge
+
+volumes:
+  master-data:
+  slave-data:
+  backup-data:
+    

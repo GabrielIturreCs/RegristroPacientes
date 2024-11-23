@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Factura Odontológica</title>
+    <!-- Enlaza el CSS de Bootstrap -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="facturaservice.js" defer></script>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        .signature {
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container form-container">
+        <h1 class="text-center">Formulario de Factura Odontológica</h1>
+        <form id="invoice-form">
+            <!-- Campo para apellido y nombre -->
+            <div class="form-group">
+                <label for="name">Apellido y Nombre:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+
+            <!-- Campo para prefijo de teléfono -->
+            <div class="form-group">
+                <label for="prefix">Prefijo del país:</label>
+                <input type="text" class="form-control" id="prefix" name="prefix" value="+54" required>
+            </div>
+
+            <!-- Campo para número de teléfono -->
+            <div class="form-group">
+                <label for="phone">Número de Teléfono:</label>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ej. 1234567890" required>
+            </div>
+
+            <!-- Lista desplegable para servicios -->
+            <div class="form-group">
+                <label for="service">Servicio:</label>
+                <select id="service" name="service" class="form-control" required>
+                    <option value="">Seleccione un servicio</option>
+                    <option value="implantes">Implantes</option>
+                    <option value="ortodoncia">Ortodoncia</option>
+                    <option value="arreglo_dentario">Arreglo Dentario</option>
+                    <option value="tratamiento_conducto">Tratamiento de Conducto</option>
+                    <option value="extraccion_simple">Extracción Simple</option>
+                    <option value="extraccion_retenido">Extracción Retenido</option>
+                    <option value="limpieza_dentaria">Limpieza Dentaria</option>
+                    <option value="blanqueamiento_dentario">Blanqueamiento Dentario</option>
+                    <option value="perno_dentario">Perno Dentario</option>
+                    <option value="corona_dentaria">Corona Dentaria</option>
+                    <option value="protesis_flex">Prótesis Flex</option>
+                    <option value="protesis_acrilico">Prótesis de Acrílico</option>
+                </select>
+            </div>
+
+            <!-- Campo para importe -->
+            <div class="form-group">
+                <label for="amount">Importe Pagado:</label>
+                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+            </div>
+
+            <!-- Lista desplegable para sede -->
+            <div class="form-group">
+                <label for="location">Sede:</label>
+                <select id="location" name="location" class="form-control" required>
+                    <option value="">Seleccione una sede</option>
+                    <option value="palpala">Palpala</option>
+                    <option value="san_salvador">San Salvador de Jujuy</option>
+                </select>
+            </div>
+
+            <!-- Botón de envío -->
+            <button type="button" class="btn btn-primary btn-block" onclick="submitForm()">Enviar</button>
+        </form>
+    </div>
+
+    <!-- Enlaza el JavaScript de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
