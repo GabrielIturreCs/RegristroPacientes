@@ -18,3 +18,9 @@ master-data/ib_buffer_pool
 backup-data/*.sql
 
 slave-data/mysql.sock
+
+master-data/#innodb_redo/
+master-data/#innodb_redo/#ib_redo25_tmp
+
+slave-data/#innodb_redo/
+slave-data/#innodb_redo/#ib_redo38_tmp
