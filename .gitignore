@@ -24,3 +24,5 @@ master-data/#innodb_redo/#ib_redo25_tmp
 
 slave-data/#innodb_redo/
 slave-data/#innodb_redo/#ib_redo38_tmp
+master-data/#innodb_temp/
+slave-data/#*
