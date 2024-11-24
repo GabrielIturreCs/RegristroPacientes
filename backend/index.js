@@ -7,7 +7,7 @@ const cors = require('cors');  // Añadir CORS
 const appExpress = express();
 const port = process.env.PORT || 3000; // Usar variable de entorno para puerto
 
-// Habilitar el uso de JSON
+// Habilitar el uso de JSON 2
 appExpress.use(bodyParser.json());
 
 // Habilitar CORS para permitir peticiones desde otros orígenes
