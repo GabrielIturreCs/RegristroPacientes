@@ -1,39 +1,35 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Factura Odontológica</title>
+    <title>Formulario de Registro</title>
     <!-- Enlaza el CSS de Bootstrap -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="facturaservice.js" defer></script>
     <style>
         .form-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: auto;
             padding: 20px;
         }
-        .signature {
+        .alert {
             margin-top: 20px;
-            font-style: italic;
         }
     </style>
 </head>
 <body>
     <div class="container form-container">
-        <h1 class="text-center">Formulario de Factura Odontológica</h1>
-        <form id="invoice-form">
-            <!-- Campo para apellido y nombre -->
-            <div class="form-group">
-                <label for="name">Apellido y Nombre:</label>
-                <input type="text" class="form-control" id="name" name="name" required>
-            </div>
+        <h1 class="text-center">Formulario de Registro de Usuario 2</h1>
+        
+        <!-- Contenedor para mensajes de éxito o error -->
+        <div id="message-container"></div>
 
-            <!-- Campo para prefijo de teléfono -->
+        <form id="user-form">
+            <!-- Campo para nombre -->
             <div class="form-group">
-                <label for="prefix">Prefijo del país:</label>
-                <input type="text" class="form-control" id="prefix" name="prefix" value="+54" required>
+                <label for="name">Nombre del receptor:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
             </div>
 
             <!-- Campo para número de teléfono -->
@@ -46,7 +42,7 @@
             <div class="form-group">
                 <label for="service">Servicio:</label>
                 <select id="service" name="service" class="form-control" required>
-                    <option value="">Seleccione un servicio</option>
+                    <option value="">Seleccione un servicio 2</option>
                     <option value="implantes">Implantes</option>
                     <option value="ortodoncia">Ortodoncia</option>
                     <option value="arreglo_dentario">Arreglo Dentario</option>
@@ -79,13 +75,59 @@
             </div>
 
             <!-- Botón de envío -->
-            <button type="button" class="btn btn-primary btn-block" onclick="submitForm()">Enviar</button>
+            <button type="submit" class="btn btn-primary btn-block">Registrar</button>
         </form>
     </div>
 
-    <!-- Enlaza el JavaScript de Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Función para mostrar mensaje de éxito
+        function showMessage(message, isSuccess) {
+            const messageContainer = document.getElementById("message-container");
+            messageContainer.innerHTML = ''; // Limpiar cualquier mensaje previo
+            const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+            const alertMessage = `<div class="alert ${alertClass}" role="alert">${message}</div>`;
+            messageContainer.innerHTML = alertMessage;
+        }
+
+        // Manejador del formulario
+        document.getElementById("user-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // Evitar el envío por defecto
+
+            // Obtener los valores del formulario
+            const formData = {
+                name: document.getElementById("name").value,
+                phone: document.getElementById("phone").value,
+                service: document.getElementById("service").value,
+                amount: document.getElementById("amount").value,
+                location: document.getElementById("location").value
+            };
+
+            // Validación de formulario (simple)
+            if (!formData.name || !formData.phone || !formData.service || !formData.amount || !formData.location) {
+                showMessage("Por favor, complete todos los campos obligatorios.", false);
+                return;
+            }
+
+            // Aquí haces el envío al backend
+            fetch('http://localhost:3000/register-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage("¡Usuario registrado con éxito!", true);
+                } else {
+                    showMessage("Hubo un error al registrar al usuario.", false);
+                }
+            })
+            .catch(error => {
+                showMessage("Hubo un problema al registrar al usuario. Intenta nuevamente.", false);
+            });
+        });
+    </script>
 </body>
 </html>

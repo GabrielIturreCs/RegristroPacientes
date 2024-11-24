@@ -1,4 +1,6 @@
 appExpress.post('/register-user', (req, res) => {
+
+  
   const { name, email, phone } = req.body;
 
   // Validaciones de campos

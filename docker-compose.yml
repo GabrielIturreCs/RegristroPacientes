@@ -93,10 +93,9 @@ services:
     networks:
       - red-hia
     depends_on:
-      - mysql-master
+      - mysql-master  # Solo una vez
     ports:
       - "3000:3000"
-
   # Telegraf
   telegraf:
     image: telegraf:latest
@@ -119,6 +118,9 @@ services:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
     networks:
       - red-hia
+
+
+
 
   # Grafana
   grafana:
@@ -158,4 +160,3 @@ volumes:
   master-data:
   slave-data:
   backup-data:
-    

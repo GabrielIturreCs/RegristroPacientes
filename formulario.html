@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Registro</title>
+    <title>Formulario de Registro de Usuario</title>
     <!-- Enlaza el CSS de Bootstrap -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="facturaservice.js" defer></script>
@@ -16,6 +16,11 @@
         .alert {
             margin-top: 20px;
         }
+        .spinner-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -24,6 +29,13 @@
         
         <!-- Contenedor para mensajes de éxito o error -->
         <div id="message-container"></div>
+
+        <!-- Contenedor para el spinner de carga -->
+        <div id="loading-spinner" class="spinner-container">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Cargando...</span>
+            </div>
+        </div>
 
         <form id="user-form">
             <!-- Campo para nombre -->
@@ -35,7 +47,8 @@
             <!-- Campo para número de teléfono -->
             <div class="form-group">
                 <label for="phone">Número de Teléfono:</label>
-                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ej. 1234567890" required>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ej. 1234567890" required pattern="^\d{10}$">
+                <small class="form-text text-muted">Introduce un número de teléfono válido con 10 dígitos.</small>
             </div>
 
             <!-- Lista desplegable para servicios -->
@@ -93,6 +106,9 @@
         document.getElementById("user-form").addEventListener("submit", function(event) {
             event.preventDefault(); // Evitar el envío por defecto
 
+            // Mostrar el spinner mientras se procesa el formulario
+            document.getElementById("loading-spinner").style.display = "block";
+
             // Obtener los valores del formulario
             const formData = {
                 name: document.getElementById("name").value,
@@ -105,6 +121,7 @@
             // Validación de formulario (simple)
             if (!formData.name || !formData.phone || !formData.service || !formData.amount || !formData.location) {
                 showMessage("Por favor, complete todos los campos obligatorios.", false);
+                document.getElementById("loading-spinner").style.display = "none";
                 return;
             }
 
@@ -123,9 +140,11 @@
                 } else {
                     showMessage("Hubo un error al registrar al usuario.", false);
                 }
+                document.getElementById("loading-spinner").style.display = "none";
             })
             .catch(error => {
                 showMessage("Hubo un problema al registrar al usuario. Intenta nuevamente.", false);
+                document.getElementById("loading-spinner").style.display = "none";
             });
         });
     </script>

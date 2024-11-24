@@ -1,10 +1,10 @@
 # Usa la imagen oficial de Nginx
 FROM nginx:latest
 
-# Copia los archivos del frontend al contenedor (asegúrate de que los archivos estén en el directorio correcto)
-COPY ./dist/ /usr/share/nginx/html
+# Copia los archivos del frontend desde el directorio dist a la carpeta de Nginx dentro del contenedor
+COPY dist/ /usr/share/nginx/html/
 
-# Exponer el puerto 80 para poder acceder al frontend
+# Exponer el puerto 80 para acceder al frontend
 EXPOSE 80
 
 # Ejecutar Nginx en primer plano

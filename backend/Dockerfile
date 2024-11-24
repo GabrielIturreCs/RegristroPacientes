@@ -16,5 +16,5 @@ COPY . .
 # Exponer el puerto 3000 (o el puerto que uses para el backend)
 EXPOSE 3000
 
-# Ejecutar el servidor de Express
-CMD ["node", "index.js"]
+# Ejecutar un retraso para esperar que la base de datos esté disponible
+CMD sleep 15 && node index.js
