@@ -26,13 +26,22 @@ const dbLocal = mysql.createConnection({
     port: 3306
 });
 
-// Configuración de conexión a MySQL para Railway
+// URL de conexión a la base de datos de Railway
 const dbRailway = mysql.createConnection({
-    host: 'mysql.ferrocarril.internal',  // Host proporcionado por Railway
-    user: 'root',  // Usuario proporcionado por Railway
-    password: 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',  // Contraseña proporcionada por Railway
-    database: 'ferrocarril',  // Nombre de la base de datos proporcionada por Railway
-    port: 3306  // Puerto MySQL por defecto
+    host: 'junction.proxy.rlwy.net',
+    user: 'root',
+    password: '********',  // Sustituye con la contraseña real
+    database: 'railway',
+    port: 50940
+});
+
+// Conexión a la base de datos de Railway
+dbRailway.connect((err) => {
+    if (err) {
+        console.error('Error al conectar a la base de datos de Railway:', err);
+        return;
+    }
+    console.log('Conexión exitosa a la base de datos de Railway');
 });
 
 // Conectar a la base de datos de localhost
