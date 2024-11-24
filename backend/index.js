@@ -7,12 +7,12 @@ const cors = require('cors');  // Añadir CORS
 const appExpress = express();
 const port = process.env.PORT || 3000; // Usar variable de entorno para puerto
 
-// Habilitar el uso de JSON 2
+// Habilitar el uso de JSON
 appExpress.use(bodyParser.json());
 
-// Habilitar CORS para permitir peticiones desde otros orígenes
+// Configuración de CORS para permitir peticiones desde Netlify y localhost
 appExpress.use(cors({
-    origin: 'http://localhost:8085', // Permitir solicitudes desde tu frontend
+    origin: ['http://localhost:8085', 'https://registrofacil.netlify.app'],  // Permitir solicitudes desde ambos orígenes
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
