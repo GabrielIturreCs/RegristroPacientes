@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const cors = require('cors');
+const cors = require('cors');  // Asegurando que CORS esté habilitado
 
 // Crear servidor Express
 const appExpress = express();
@@ -17,49 +17,22 @@ appExpress.use(cors({
     allowedHeaders: ['Content-Type']
 }));
 
-// Configuración de conexión a MySQL para localhost
-const dbLocal = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'usersdb',
-    port: 3306
+// Configuración de conexión a MySQL
+const db = mysql.createConnection({
+    host: process.env.MYSQL_HOST || 'mysql.railway.internal',  // Usar la variable de entorno MYSQL_HOST
+    user: process.env.MYSQL_USER || 'root',  // Usuario de la base de datos
+    password: process.env.MYSQL_PASSWORD || 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',  // Contraseña de la base de datos
+    database: process.env.MYSQL_DATABASE || 'railway',  // Base de datos a utilizar
+    port: process.env.MYSQL_PORT || 3306  // Puerto de la base de datos (por defecto 3306)
 });
 
-// URL de conexión a la base de datos de Railway
-const dbRailway = mysql.createConnection({
-    host: 'junction.proxy.rlwy.net',
-    user: 'root',
-    password: '********',  // Sustituye con la contraseña real
-    database: 'railway',
-    port: 50940
-});
-
-// Conexión a la base de datos de Railway
-dbRailway.connect((err) => {
+// Conectar a la base de datos
+db.connect((err) => {
     if (err) {
-        console.error('Error al conectar a la base de datos de Railway:', err);
+        console.error('Error al conectar a la base de datos:', err);
         return;
     }
-    console.log('Conexión exitosa a la base de datos de Railway');
-});
-
-// Conectar a la base de datos de localhost
-dbLocal.connect((err) => {
-    if (err) {
-        console.error('Error al conectar a la base de datos local:', err);
-        return;
-    }
-    console.log('Conexión exitosa a la base de datos local MySQL');
-});
-
-// Conectar a la base de datos de Railway
-dbRailway.connect((err) => {
-    if (err) {
-        console.error('Error al conectar a la base de datos de Railway:', err);
-        return;
-    }
-    console.log('Conexión exitosa a la base de datos de Railway');
+    console.log('Conexión exitosa a la base de datos MySQL');
 });
 
 // Iniciar el servidor Express
@@ -90,12 +63,9 @@ appExpress.post('/register-user', async (req, res) => {
             registrationDate
         };
 
-        // Escoge la base de datos según el entorno (local o en producción)
-        const dbConnection = process.env.NODE_ENV === 'production' ? dbRailway : dbLocal;
-
         // Consulta SQL para insertar el usuario en la base de datos
         const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
-        dbConnection.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
+        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
                 console.error('Error al insertar usuario:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
@@ -125,14 +95,11 @@ appExpress.post('/manual-register', (req, res) => {
             registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
         };
 
-        // Escoge la base de datos según el entorno (local o en producción)
-        const dbConnection = process.env.NODE_ENV === 'production' ? dbRailway : dbLocal;
-
         // Consulta SQL para insertar el usuario en la base de datos
         const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
 
         // Ejecutar la consulta
-        dbConnection.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
+        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
                 console.error('Error al insertar usuario manualmente:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
