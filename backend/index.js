@@ -1,16 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const cors = require('cors');  // Añadir CORS
+const cors = require('cors');  // Asegurando que CORS esté habilitado
 
 // Crear servidor Express
 const appExpress = express();
-const port = process.env.PORT || 3000; // Usar variable de entorno para puerto
+const port = process.env.PORT || 3000;  // Usar variable de entorno para puerto
 
 // Habilitar el uso de JSON
 appExpress.use(bodyParser.json());
 
-// Configuración de CORS para permitir peticiones desde Netlify y localhost
+// Configuración de CORS para permitir solicitudes desde Netlify y localhost
 appExpress.use(cors({
     origin: ['http://localhost:8085', 'https://registrofacil.netlify.app'],  // Permitir solicitudes desde ambos orígenes
     methods: ['GET', 'POST'],
