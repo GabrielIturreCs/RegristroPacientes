@@ -49,8 +49,9 @@ appExpress.post('/register-user', (req, res) => {
     }
 
     // Generar un ID único aleatorio
-    const userId = Math.floor(Math.random() * 10000);
+    const userId = Math.floor(Math.random() * 10000); // Rango de 0 a 9999
 
+    // Consulta SQL para insertar el usuario
     const query = `
         INSERT INTO users (id, name, phone, service, amount, location, registrationDate)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -64,6 +65,16 @@ appExpress.post('/register-user', (req, res) => {
         (err, result) => {
             if (err) {
                 console.error('Error al registrar el usuario:', err);
+
+                // Verificar si el error es por ID duplicado
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(409).json({
+                        success: false,
+                        message: 'ID duplicado. Por favor, inténtalo de nuevo.',
+                        errorDetails: err.message,
+                    });
+                }
+
                 return res.status(500).json({
                     success: false,
                     message: 'Error al registrar el usuario.',
@@ -78,8 +89,7 @@ appExpress.post('/register-user', (req, res) => {
             });
         }
     );
-});
-
+})
 // Endpoint para realizar un registro manual desde el backend
 appExpress.post('/manual-register', (req, res) => {
     try {
