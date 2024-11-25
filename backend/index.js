@@ -73,25 +73,6 @@ appExpress.post('/register-user', async (req, res) => {
     }
 });
 
-        // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
-        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
-            if (err) {
-                console.error('Error al insertar usuario:', err);
-                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-            }
-
-            console.log('Usuario registrado:', userData);
-
-            // Responder con un mensaje de éxito
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
-        });
-    } catch (error) {
-        console.error('Error al registrar el usuario:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: error.message });
-    }
-});
-
 // Endpoint para realizar un registro manual desde el backend
 appExpress.post('/manual-register', (req, res) => {
     try {
