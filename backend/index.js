@@ -42,15 +42,15 @@ appExpress.listen(port, () => {
 
 appExpress.post('/register-user', (req, res) => {
     try {
-        // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
+        // Datos predeterminados con un ID aleatorio
         const userData = {
             id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: "Carlos Ramírez",
-            phone: "987654321",
-            service: "Servicio B",
-            amount: 200,
-            location: "Ciudad Y",
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
+            name: req.body.name || "",  // Recibe el nombre o deja vacío
+            phone: req.body.phone || "",  // Recibe el teléfono o deja vacío
+            service: req.body.service || "",  // Recibe el servicio o deja vacío
+            amount: req.body.amount || 0,  // Recibe el monto o deja 0
+            location: req.body.location || "",  // Recibe la ubicación o deja vacío
+            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Fecha y hora actual
         };
 
         // Consulta SQL para insertar el usuario en la base de datos
@@ -59,16 +59,16 @@ appExpress.post('/register-user', (req, res) => {
         // Ejecutar la consulta
         db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
-                console.error('Error al insertar usuario manualmente:', err);
+                console.error('Error al insertar usuario:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
             }
 
-            console.log('Usuario registrado manualmente:', userData);
+            console.log('Usuario registrado:', userData);
             res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
         });
     } catch (error) {
-        console.error('Error al registrar usuario manualmente:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
+        console.error('Error al registrar usuario:', error);
+        res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: error.message });
     }
 });
 // Endpoint para realizar un registro manual desde el backend
