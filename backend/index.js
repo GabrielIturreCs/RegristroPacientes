@@ -41,55 +41,36 @@ appExpress.listen(port, () => {
 });
 
 appExpress.post('/register-user', (req, res) => {
-    const { name, phone, service, amount, location } = req.body;
+    try {
+        // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
+        const userData = {
+            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
+            name: "Carlos Ramírez",
+            phone: "987654321",
+            service: "Servicio B",
+            amount: 200,
+            location: "Ciudad Y",
+            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
+        };
 
-    // Validar los datos de entrada
-    if (!name || !phone || !service || !amount || !location) {
-        return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
-    }
+        // Consulta SQL para insertar el usuario en la base de datos
+        const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-    // Generar un ID único aleatorio
-    const userId = Math.floor(Math.random() * 10000); // Rango de 0 a 9999
-
-    // Consulta SQL para insertar el usuario
-    const query = `
-        INSERT INTO users (id, name, phone, service, amount, location, registrationDate)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const registrationDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-    db.query(
-        query,
-        [userId, name, phone, service, amount, location, registrationDate],
-        (err, result) => {
+        // Ejecutar la consulta
+        db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
-                console.error('Error al registrar el usuario:', err);
-
-                // Verificar si el error es por ID duplicado
-                if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(409).json({
-                        success: false,
-                        message: 'ID duplicado. Por favor, inténtalo de nuevo.',
-                        errorDetails: err.message,
-                    });
-                }
-
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error al registrar el usuario.',
-                    errorDetails: err.message,
-                });
+                console.error('Error al insertar usuario manualmente:', err);
+                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
             }
 
-            res.json({
-                success: true,
-                message: 'Usuario registrado con éxito.',
-                userId,
-            });
-        }
-    );
-})
+            console.log('Usuario registrado manualmente:', userData);
+            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
+        });
+    } catch (error) {
+        console.error('Error al registrar usuario manualmente:', error);
+        res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
+    }
+});
 // Endpoint para realizar un registro manual desde el backend
 appExpress.post('/manual-register', (req, res) => {
     try {
