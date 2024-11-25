@@ -3,28 +3,31 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
-require('dotenv').config(); // Cargar variables de entorno desde .env
+
+// Definir las variables de entorno directamente en index.js
+const processEnv = {
+    PORT: 3000,
+    CORS_ORIGINS: 'http://localhost:3000,https://miapp.com',
+    MYSQL_URL: 'mysql://root:scooYatZFrYswivvuLCgGojmysSMsfck@autorack.proxy.rlwy.net:29457/railway',
+};
 
 // Crear servidor Express
 const appExpress = express();
-const port = process.env.PORT || 3000; // Puerto definido en .env o por defecto 3000
+const port = processEnv.PORT || 3000; // Puerto definido en processEnv o por defecto 3000
 
 // Middleware
 appExpress.use(bodyParser.json());
 appExpress.use(cors({
-    origin: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : '*', // Permitir múltiples orígenes desde .env o permitir todos
+    origin: processEnv.CORS_ORIGINS ? processEnv.CORS_ORIGINS.split(',') : '*', // Permitir múltiples orígenes desde processEnv o permitir todos
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
 
-// Configuración de conexión a MySQL
-const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST || 'localhost', // Host desde .env o localhost como fallback
-    user: process.env.MYSQL_USER || 'root', // Usuario desde .env o root como fallback
-    password: process.env.MYSQL_PASSWORD || '', // Contraseña desde .env o cadena vacía como fallback
-    database: process.env.MYSQL_DATABASE || 'railway', // Base de datos desde .env o railway como fallback
-    port: process.env.MYSQL_PORT || 3306 // Puerto desde .env o 3306 como fallback
-});
+// Obtener la URL de la base de datos desde las variables de entorno
+const dbUrl = processEnv.MYSQL_URL || 'mysql://root:scooYatZFrYswivvuLCgGojmysSMsfck@autorack.proxy.rlwy.net:29457/railway';
+
+// Crear conexión a la base de datos MySQL utilizando la URL
+const db = mysql.createConnection(dbUrl);
 
 // Conectar a la base de datos
 db.connect((err) => {
