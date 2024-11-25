@@ -113,3 +113,38 @@ appExpress.post('/manual-register', (req, res) => {
         res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
     }
 });
+
+
+//endopoint 2 
+
+// Endpoint para realizar un nuevo registro manual desde el backend
+appExpress.post('/new-manual-register', (req, res) => {
+    try {
+        // Datos manuales
+        const userData = {
+            name: "Carlos Ramírez",
+            phone: "987654321",
+            service: "Servicio B",
+            amount: 200,
+            location: "Ciudad Y",
+            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
+        };
+
+        // Consulta SQL para insertar el usuario en la base de datos
+        const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
+
+        // Ejecutar la consulta
+        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
+            if (err) {
+                console.error('Error al insertar usuario manualmente:', err);
+                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
+            }
+
+            console.log('Usuario registrado manualmente:', userData);
+            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
+        });
+    } catch (error) {
+        console.error('Error al registrar usuario manualmente:', error);
+        res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
+    }
+});
