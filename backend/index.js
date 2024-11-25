@@ -46,11 +46,11 @@ appExpress.post('/register-user', async (req, res) => {
         // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
         const userData = {
             id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: "Carlos Ramírez",
-            phone: "987654321",
-            service: "Servicio B",
-            amount: 200,
-            location: "Ciudad Y",
+            name: "",
+            phone: "",
+            service: "",
+            amount: "",
+            location: "",
             registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
         };
 
