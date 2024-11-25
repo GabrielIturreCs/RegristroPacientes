@@ -1,29 +1,29 @@
+// Cargar dependencias
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const cors = require('cors');  // Asegurando que CORS esté habilitado
+const cors = require('cors');
+require('dotenv').config(); // Cargar variables de entorno
 
 // Crear servidor Express
 const appExpress = express();
-const port = process.env.PORT || 3000;  // Usar variable de entorno para puerto
+const port = process.env.PORT || 3000; // Puerto definido en .env o por defecto 3000
 
-// Habilitar el uso de JSON
+// Middleware
 appExpress.use(bodyParser.json());
-
-// Configuración de CORS para permitir solicitudes desde Netlify y localhost
 appExpress.use(cors({
-    origin: ['http://localhost:8085', 'https://registrofacil.netlify.app'],  // Permitir solicitudes desde ambos orígenes
+    origin: process.env.CORS_ORIGINS.split(','), // Permitir múltiples orígenes desde .env
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
 
 // Configuración de conexión a MySQL
 const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST || 'mysql.railway.internal',  // Usar la variable de entorno MYSQL_HOST
-    user: process.env.MYSQL_USER || 'root',  // Usuario de la base de datos
-    password: process.env.MYSQL_PASSWORD || 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',  // Contraseña de la base de datos
-    database: process.env.MYSQL_DATABASE || 'railway',  // Base de datos a utilizar
-    port: process.env.MYSQL_PORT || 3306  // Puerto de la base de datos (por defecto 3306)
+    host: process.env.MYSQL_HOST, // Host desde .env
+    user: process.env.MYSQL_USER, // Usuario desde .env
+    password: process.env.MYSQL_PASSWORD, // Contraseña desde .env
+    database: process.env.MYSQL_DATABASE, // Nombre de la base de datos desde .env
+    port: process.env.MYSQL_PORT // Puerto desde .env
 });
 
 // Conectar a la base de datos
