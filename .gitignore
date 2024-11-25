@@ -1,6 +1,5 @@
 # Ignorar node_modules y carpetas de construcción
 node_modules/
-dist/
 build/
 
 # Ignorar archivos de entorno y logs

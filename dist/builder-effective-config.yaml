@@ -1,0 +1,16 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.miempresa.miapp
+productName: Facturas Automatizada
+win:
+  target: nsis
+  icon: assets/icons/win/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+files:
+  - filter:
+      - index.js
+      - package.json
+electronVersion: 32.0.1
