@@ -55,6 +55,7 @@ appExpress.post('/register-user', async (req, res) => {
 
         // Estructura de los datos del usuario
         const userData = {
+            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
             name,
             phone,
             service,
