@@ -40,37 +40,33 @@ appExpress.listen(port, () => {
     console.log(`Backend corriendo en http://localhost:${port}`);
 });
 
-// Endpoint para registrar un usuario
-appExpress.post('/register-user', async (req, res) => {
-    try {
-        // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
-        const userData = {
-            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: "",
-            phone: "",
-            service: "",
-            amount: "",
-            location: "",
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
-        };
+appExpress.post('/register-user', (req, res) => {
+    // Extraer datos enviados desde el cliente
+    const { name, phone, service, amount, location } = req.body;
 
-        // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
-
-        // Ejecutar la consulta
-        db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
-            if (err) {
-                console.error('Error al insertar usuario manualmente:', err);
-                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-            }
-
-            console.log('Usuario registrado manualmente:', userData);
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
-        });
-    } catch (error) {
-        console.error('Error al registrar usuario manualmente:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
+    // Validación simple de campos requeridos
+    if (!name || !phone || !service || !amount || !location) {
+        return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
     }
+
+    // Consulta SQL para insertar el usuario, el ID será generado automáticamente
+    const query = `
+        INSERT INTO users (name, phone, service, amount, location, registrationDate)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    // Generar la fecha de registro en formato MySQL
+    const registrationDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    // Ejecutar la consulta
+    db.query(query, [name, phone, service, amount, location, registrationDate], (err, result) => {
+        if (err) {
+            console.error('Error al registrar el usuario:', err);
+            return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
+        }
+
+        res.json({ success: true, message: 'Usuario registrado con éxito.', userId: result.insertId });
+    });
 });
 
 // Endpoint para realizar un registro manual desde el backend
