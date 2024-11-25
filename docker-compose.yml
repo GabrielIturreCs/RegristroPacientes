@@ -76,26 +76,27 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "8085:80"
+      - "8087:80"
     networks:
       - red-hia
 
-  # Backend
   backend:
     build:
-      context: ./backend
+      context: ./backend  # Ajusta la ruta de tu backend
     container_name: backend
     environment:
-      MYSQL_HOST: mysql-master
+      MYSQL_HOST: haproxy  # Se conecta a HAProxy
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: usersdb
+      MYSQL_PORT: 3306  # El puerto expuesto por HAProxy
     networks:
       - red-hia
     depends_on:
-      - mysql-master  # Solo una vez
+      - mysql-master
+      - mysql-slave  # Se asegura de que los contenedores de DB estén corriendo
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Exponer tu backend al puerto 3000
   # Telegraf
   telegraf:
     image: telegraf:latest
@@ -118,9 +119,19 @@ services:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
     networks:
       - red-hia
-
-
-
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    ports:
+      - "3317:3306"  # Exponer el puerto de MySQL en HAProxy
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg  # Configuración de HAProxy
+    depends_on:
+      - mysql-master
+      - mysql-slave
+    networks:
+      - red-hia
+ 
 
   # Grafana
   grafana:
@@ -148,8 +159,8 @@ services:
       "sleep 30 && 
       while true; do
       mysqldump --verbose --single-transaction --set-gtid-purged=OFF -h mysql-master -uroot -proot usersdb > /backup/db_backup_$(date +%F_%T).sql &&
-      echo 'Backup completed. Sleeping for 24 hours.' &&
-      sleep 86400;
+      echo 'Backup completed. Sleeping for 1 hora' &&
+      sleep 1200;
       done"
 
 networks:
@@ -160,3 +171,4 @@ volumes:
   master-data:
   slave-data:
   backup-data:
+  

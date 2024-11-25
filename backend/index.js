@@ -1,39 +1,36 @@
-// Cargar dependencias
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const cors = require('cors');
-
-// Definir las variables de entorno directamente en index.js
-const processEnv = {
-    PORT: 3000,
-    CORS_ORIGINS: 'http://localhost:3000,https://miapp.com',
-    MYSQL_URL: 'mysql://root:scooYatZFrYswivvuLCgGojmysSMsfck@autorack.proxy.rlwy.net:29457/railway',
-};
+const cors = require('cors');  // Asegurando que CORS esté habilitado
 
 // Crear servidor Express
 const appExpress = express();
-const port = processEnv.PORT || 3000; // Puerto definido en processEnv o por defecto 3000
+const port = process.env.PORT || 3000;  // Usar variable de entorno para puerto
 
-// Middleware
+// Habilitar el uso de JSON
 appExpress.use(bodyParser.json());
+
+// Configuración de CORS para permitir solicitudes desde Netlify y localhost
 appExpress.use(cors({
-    origin: processEnv.CORS_ORIGINS ? processEnv.CORS_ORIGINS.split(',') : '*', // Permitir múltiples orígenes desde processEnv o permitir todos
+    origin: ['http://localhost:8087', 'https://registrofacil.netlify.app'],  // Permitir solicitudes desde ambos orígenes
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
 
-// Obtener la URL de la base de datos desde las variables de entorno
-const dbUrl = processEnv.MYSQL_URL || 'mysql://root:scooYatZFrYswivvuLCgGojmysSMsfck@autorack.proxy.rlwy.net:29457/railway';
-
-// Crear conexión a la base de datos MySQL utilizando la URL
-const db = mysql.createConnection(dbUrl);
+// Configuración de la conexión a la base de datos
+const db = mysql.createConnection({
+    host: process.env.MYSQL_HOST || 'haproxy',  // HAProxy como host (o 'haproxy' por defecto)
+    user: process.env.MYSQL_USER || 'root',  // Usuario de la base de datos
+    password: process.env.MYSQL_PASSWORD || 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',  // Contraseña de la base de datos
+    database: process.env.MYSQL_DATABASE || 'railway',  // Nombre de la base de datos
+    port: process.env.MYSQL_PORT || 3306,  // Puerto de la base de datos (configurado en HAProxy)
+});
 
 // Conectar a la base de datos
 db.connect((err) => {
     if (err) {
-        console.error('Error al conectar a la base de datos:', err.message);
-        process.exit(1); // Terminar la ejecución si no se puede conectar a la base de datos
+        console.error('Error al conectar a la base de datos:', err);
+        return;
     }
     console.log('Conexión exitosa a la base de datos MySQL');
 });
@@ -56,19 +53,31 @@ appExpress.post('/register-user', async (req, res) => {
         // Formatear la fecha al formato correcto (YYYY-MM-DD HH:MM:SS)
         const registrationDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
+        // Estructura de los datos del usuario
+        const userData = {
+            name,
+            phone,
+            service,
+            amount,
+            location,
+            registrationDate
+        };
+
         // Consulta SQL para insertar el usuario en la base de datos
         const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
-        db.query(query, [name, phone, service, amount, location, registrationDate], (err, result) => {
+        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
-                console.error('Error al insertar usuario:', err.message);
+                console.error('Error al insertar usuario:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
             }
 
-            console.log('Usuario registrado:', { name, phone, service, amount, location, registrationDate });
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: { name, phone, service, amount, location, registrationDate } });
+            console.log('Usuario registrado:', userData);
+
+            // Responder con un mensaje de éxito
+            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
         });
     } catch (error) {
-        console.error('Error al registrar el usuario:', error.message);
+        console.error('Error al registrar el usuario:', error);
         res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: error.message });
     }
 });
@@ -83,7 +92,7 @@ appExpress.post('/manual-register', (req, res) => {
             service: "Servicio A",
             amount: 100,
             location: "Ciudad X",
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ') // Formato correcto
+            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
         };
 
         // Consulta SQL para insertar el usuario en la base de datos
@@ -92,7 +101,7 @@ appExpress.post('/manual-register', (req, res) => {
         // Ejecutar la consulta
         db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
-                console.error('Error al insertar usuario manualmente:', err.message);
+                console.error('Error al insertar usuario manualmente:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
             }
 
@@ -100,7 +109,7 @@ appExpress.post('/manual-register', (req, res) => {
             res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
         });
     } catch (error) {
-        console.error('Error al registrar usuario manualmente:', error.message);
+        console.error('Error al registrar usuario manualmente:', error);
         res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
     }
 });
