@@ -41,32 +41,43 @@ appExpress.listen(port, () => {
 });
 
 appExpress.post('/register-user', (req, res) => {
-    // Extraer datos enviados desde el cliente
     const { name, phone, service, amount, location } = req.body;
 
-    // Validación simple de campos requeridos
+    // Validar los datos de entrada
     if (!name || !phone || !service || !amount || !location) {
         return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
     }
 
-    // Consulta SQL para insertar el usuario, el ID será generado automáticamente
+    // Generar un ID único aleatorio
+    const userId = Math.floor(Math.random() * 10000);
+
     const query = `
-        INSERT INTO users (name, phone, service, amount, location, registrationDate)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO users (id, name, phone, service, amount, location, registrationDate)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    // Generar la fecha de registro en formato MySQL
     const registrationDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-    // Ejecutar la consulta
-    db.query(query, [name, phone, service, amount, location, registrationDate], (err, result) => {
-        if (err) {
-            console.error('Error al registrar el usuario:', err);
-            return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-        }
+    db.query(
+        query,
+        [userId, name, phone, service, amount, location, registrationDate],
+        (err, result) => {
+            if (err) {
+                console.error('Error al registrar el usuario:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error al registrar el usuario.',
+                    errorDetails: err.message,
+                });
+            }
 
-        res.json({ success: true, message: 'Usuario registrado con éxito.', userId: result.insertId });
-    });
+            res.json({
+                success: true,
+                message: 'Usuario registrado con éxito.',
+                userId,
+            });
+        }
+    );
 });
 
 // Endpoint para realizar un registro manual desde el backend
