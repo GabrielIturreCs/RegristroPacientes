@@ -115,13 +115,13 @@ appExpress.post('/manual-register', (req, res) => {
 });
 
 
-//endopoint 2 
 
 // Endpoint para realizar un nuevo registro manual desde el backend
 appExpress.post('/new-manual-register', (req, res) => {
     try {
-        // Datos manuales
+        // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
         const userData = {
+            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
             name: "Carlos Ramírez",
             phone: "987654321",
             service: "Servicio B",
@@ -131,10 +131,10 @@ appExpress.post('/new-manual-register', (req, res) => {
         };
 
         // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
         // Ejecutar la consulta
-        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
+        db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
                 console.error('Error al insertar usuario manualmente:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
