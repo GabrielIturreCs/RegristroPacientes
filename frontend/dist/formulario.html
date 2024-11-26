@@ -83,7 +83,16 @@
             <!-- Campo para importe -->
             <div class="form-group">
                 <label for="amount">Importe Pagado:</label>
-                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                <input 
+                    type="number" 
+                    class="form-control" 
+                    id="amount" 
+                    name="amount" 
+                    step="0.01" 
+                    min="0"  <!-- Establece el mínimo permitido -->
+                    required
+                >
+                <small id="amountError" class="text-danger" style="display: none;">Por favor, ingresa un valor positivo.</small>
             </div>
 
             <!-- Lista desplegable para sede -->
@@ -156,6 +165,19 @@
                 document.getElementById("loading-spinner").style.display = "none";
             });
         });
+        const amountInput = document.getElementById('amount');
+const errorText = document.getElementById('amountError');
+
+amountInput.addEventListener('input', function (e) {
+    const inputValue = parseFloat(e.target.value);
+
+    if (inputValue < 0) {
+        errorText.style.display = 'block'; // Muestra el mensaje de error
+        e.target.value = ''; // Borra el valor negativo ingresado
+    } else {
+        errorText.style.display = 'none'; // Oculta el mensaje de error si el valor es válido
+    }
+});
     </script>
 </body>
 </html>
