@@ -40,24 +40,30 @@ appExpress.listen(port, () => {
     console.log(`Backend corriendo en http://localhost:${port}`);
 });
 
+// Endpoint para registrar un usuario
 appExpress.post('/register-user', (req, res) => {
     try {
-        // Datos predeterminados con un ID aleatorio
+        // Validar datos de entrada
+        const { name, phone, service, amount, location } = req.body;
+        if (!name || !phone || !service || !amount || !location) {
+            return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
+        }
+
+        // Datos de usuario
         const userData = {
-            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: req.body.name || "",  // Recibe el nombre o deja vacío
-            phone: req.body.phone || "",  // Recibe el teléfono o deja vacío
-            service: req.body.service || "",  // Recibe el servicio o deja vacío
-            amount: req.body.amount || 0,  // Recibe el monto o deja 0
-            location: req.body.location || "",  // Recibe la ubicación o deja vacío
+            name: name,
+            phone: phone,
+            service: service,
+            amount: amount,
+            location: location,
             registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Fecha y hora actual
         };
 
         // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
 
         // Ejecutar la consulta
-        db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
+        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
             if (err) {
                 console.error('Error al insertar usuario:', err);
                 return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
@@ -71,7 +77,8 @@ appExpress.post('/register-user', (req, res) => {
         res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: error.message });
     }
 });
-// Endpoint para realizar un registro manual desde el backend
+
+// Endpoint para registrar un usuario manualmente
 appExpress.post('/manual-register', (req, res) => {
     try {
         // Datos manuales
@@ -103,9 +110,7 @@ appExpress.post('/manual-register', (req, res) => {
     }
 });
 
-
-
-// Endpoint para realizar un nuevo registro manual desde el backend
+// Endpoint para un nuevo registro manual desde el backend
 appExpress.post('/new-manual-register', (req, res) => {
     try {
         // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
