@@ -41,41 +41,27 @@ appExpress.listen(port, () => {
 });
 
 // Endpoint para registrar un usuario
-appExpress.post('/register-user', (req, res) => {
-    try {
-        // Validar datos de entrada
-        const { name, phone, service, amount, location } = req.body;
-        if (!name || !phone || !service || !amount || !location) {
-            return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
-        }
+const userData = {
+    id: Math.floor(Math.random() * 10000),  // Generar un ID aleatorio
+    name: name,
+    phone: phone,
+    service: service,
+    amount: amount,
+    location: location,
+    registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Fecha y hora actual
+};
 
-        // Datos del usuario
-        const userData = {
-            id: Math.floor(Math.random() * 10000),  // Generar un ID aleatorio
-            name: name,
-            phone: phone,
-            service: service,
-            amount: amount,
-            location: location,
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Fecha y hora actual
-        };
-        // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
+// Consulta SQL para insertar el usuario en la base de datos
+const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-        // Ejecutar la consulta
-        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
-            if (err) {
-                console.error('Error al insertar usuario:', err);
-                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-            }
-
-            console.log('Usuario registrado:', userData);
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
-        });
-    } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: error.message });
+db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
+    if (err) {
+        console.error('Error al insertar usuario:', err);
+        return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
     }
+
+    console.log('Usuario registrado:', userData);
+    res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
 });
 
 // Endpoint para registrar un usuario manualmente
