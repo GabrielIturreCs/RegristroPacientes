@@ -51,15 +51,14 @@ appExpress.post('/register-user', (req, res) => {
 
         // Datos del usuario
         const userData = {
-            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: req.body.name || "",  // Recibe el nombre o deja vacío
-            phone: req.body.phone || "",  // Recibe el teléfono o deja vacío
-            service: req.body.service || "",  // Recibe el servicio o deja vacío
-            amount: req.body.amount || 0,  // Recibe el monto o deja 0
-            location: req.body.location || "",  // Recibe la ubicación o deja vacío
+            id: Math.floor(Math.random() * 10000),  // Generar un ID aleatorio
+            name: name,
+            phone: phone,
+            service: service,
+            amount: amount,
+            location: location,
             registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Fecha y hora actual
         };
-        
         // Consulta SQL para insertar el usuario en la base de datos
         const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
 
