@@ -8,7 +8,7 @@ const appExpress = express();
 const port = process.env.PORT || 8080; // Usar puerto 8080 para producción en Railway
 
 // Middleware para procesar JSON
-appExpress.use(bodyParser.json());
+appExpress.use(express.json()); // Usamos express.json() en lugar de bodyParser.json() ya que es más moderno y recomendado
 
 // Configuración de CORS para permitir solicitudes desde Netlify y localhost
 appExpress.use(cors({
@@ -39,11 +39,6 @@ db.getConnection((err, connection) => {
     }
 });
 
-// Iniciar el servidor Express
-appExpress.listen(port, () => {
-    console.log(`Backend corriendo en http://localhost:${port}`);
-});
-
 // Función para generar un ID único aleatorio
 const generateId = () => Math.floor(Math.random() * 10000);
 
@@ -57,7 +52,7 @@ appExpress.post('/register-user', (req, res) => {
         service,
         amount,
         location,
-        registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ') // Fecha de registro
     };
 
     const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -74,15 +69,13 @@ appExpress.post('/register-user', (req, res) => {
 
 // Endpoint para obtener la lista de usuarios
 appExpress.get('/get-users', (req, res) => {
-    const query = 'SELECT * FROM users'; // Consulta para obtener todos los usuarios
-
+    const query = 'SELECT * FROM users'; // Supongamos que tienes usuarios en la base de datos
     db.query(query, (err, results) => {
         if (err) {
-            console.error('Error al obtener los usuarios:', err);
-            return res.status(500).json({ success: false, message: 'Error al obtener los usuarios.', errorDetails: err.message });
+            console.error('Error al obtener usuarios:', err);
+            return res.status(500).json({ success: false, message: 'Error al obtener usuarios.', errorDetails: err.message });
         }
-        console.log('Usuarios obtenidos:', results); // Agregado para depuración
-        res.json({ success: true, users: results });
+        res.json({ success: true, users: results }); // Enviamos los resultados de la base de datos
     });
 });
 
@@ -131,4 +124,9 @@ appExpress.post('/new-manual-register', (req, res) => {
         console.log('Usuario registrado manualmente:', userData);
         res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
     });
+});
+
+// Iniciar el servidor Express
+appExpress.listen(port, () => {
+    console.log(`Backend corriendo en http://localhost:${port}`);
 });
