@@ -18,13 +18,15 @@ appExpress.use(cors({
 }));
 
 // Configuración de la conexión a la base de datos
-const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST || 'haproxy',  // HAProxy como host (o 'haproxy' por defecto)
-    user: process.env.MYSQL_USER || 'root',  // Usuario de la base de datos
-    password: process.env.MYSQL_PASSWORD || 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',  // Contraseña de la base de datos
-    database: process.env.MYSQL_DATABASE || 'railway',  // Nombre de la base de datos
-    port: process.env.MYSQL_PORT || 3306,  // Puerto de la base de datos (configurado en HAProxy)
+const db = mysql.createPool({
+    host: process.env.MYSQL_HOST || 'haproxy',
+    user: process.env.MYSQL_USER || 'root',
+    password: process.env.MYSQL_PASSWORD || 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',
+    database: process.env.MYSQL_DATABASE || 'railway',
+    port: process.env.MYSQL_PORT || 3306,
+    connectionLimit: 10, // Máximo de conexiones simultáneas
 });
+
 
 // Conectar a la base de datos
 db.connect((err) => {
