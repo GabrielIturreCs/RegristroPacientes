@@ -71,6 +71,18 @@ appExpress.post('/register-user', (req, res) => {
         res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
     });
 });
+// Endpoint para obtener la lista de usuarios
+appExpress.get('/get-users', (req, res) => {
+    const query = 'SELECT * FROM users'; // Consulta para obtener todos los usuarios
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error al obtener los usuarios:', err);
+            return res.status(500).json({ success: false, message: 'Error al obtener los usuarios.', errorDetails: err.message });
+        }
+        res.json({ success: true, users: results });
+    });
+});
 
 // Endpoint para registrar un usuario manualmente
 appExpress.post('/manual-register', (req, res) => {
