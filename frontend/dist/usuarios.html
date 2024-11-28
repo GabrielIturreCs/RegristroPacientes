@@ -39,21 +39,26 @@
                     // Seleccionar el cuerpo de la tabla
                     const userTable = document.querySelector('#user-table-body');
 
-                    // Llenar la tabla con los datos de los usuarios
-                    users.forEach(user => {
-                        const row = `
-                            <tr>
-                                <td>${user.id}</td>
-                                <td>${user.name}</td>
-                                <td>${user.phone}</td>
-                                <td>${user.service}</td>
-                                <td>${user.amount}</td>
-                                <td>${user.location}</td>
-                                <td>${user.registrationDate}</td>
-                            </tr>
-                        `;
-                        userTable.innerHTML += row;
-                    });
+                    // Verificar si hay usuarios
+                    if (users.length === 0) {
+                        userTable.innerHTML = '<tr><td colspan="7" class="text-center">No hay usuarios registrados</td></tr>';
+                    } else {
+                        // Llenar la tabla con los datos de los usuarios
+                        users.forEach(user => {
+                            const row = `
+                                <tr>
+                                    <td>${user.id}</td>
+                                    <td>${user.name}</td>
+                                    <td>${user.phone}</td>
+                                    <td>${user.service}</td>
+                                    <td>${user.amount}</td>
+                                    <td>${user.location}</td>
+                                    <td>${user.registrationDate}</td>
+                                </tr>
+                            `;
+                            userTable.innerHTML += row;
+                        });
+                    }
                 } else {
                     console.error('Error al obtener usuarios:', data.message);
                 }

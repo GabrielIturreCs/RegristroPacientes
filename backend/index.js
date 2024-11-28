@@ -5,7 +5,7 @@ const cors = require('cors'); // Asegurando que CORS esté habilitado
 
 // Crear servidor Express
 const appExpress = express();
-const port = process.env.PORT || 3000; // Usar variable de entorno para puerto
+const port = process.env.PORT || 8080; // Usar puerto 8080 para producción en Railway
 
 // Middleware para procesar JSON
 appExpress.use(bodyParser.json());
@@ -71,6 +71,7 @@ appExpress.post('/register-user', (req, res) => {
         res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
     });
 });
+
 // Endpoint para obtener la lista de usuarios
 appExpress.get('/get-users', (req, res) => {
     const query = 'SELECT * FROM users'; // Consulta para obtener todos los usuarios
@@ -80,6 +81,7 @@ appExpress.get('/get-users', (req, res) => {
             console.error('Error al obtener los usuarios:', err);
             return res.status(500).json({ success: false, message: 'Error al obtener los usuarios.', errorDetails: err.message });
         }
+        console.log('Usuarios obtenidos:', results); // Agregado para depuración
         res.json({ success: true, users: results });
     });
 });
