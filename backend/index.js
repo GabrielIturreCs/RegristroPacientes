@@ -1,18 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const cors = require('cors');  // Asegurando que CORS esté habilitado
+const cors = require('cors'); // Asegurando que CORS esté habilitado
 
 // Crear servidor Express
 const appExpress = express();
-const port = process.env.PORT || 3000;  // Usar variable de entorno para puerto actualizo
+const port = process.env.PORT || 3000; // Usar variable de entorno para puerto
 
-// Habilitar el uso de JSON
+// Middleware para procesar JSON
 appExpress.use(bodyParser.json());
 
 // Configuración de CORS para permitir solicitudes desde Netlify y localhost
 appExpress.use(cors({
-    origin: ['http://localhost:8087', 'https://registrofacil.netlify.app'],  // Permitir solicitudes desde ambos orígenes
+    origin: ['http://localhost:8087', 'https://registrofacil.netlify.app'], // Permitir solicitudes desde ambos orígenes
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
@@ -24,17 +24,19 @@ const db = mysql.createPool({
     password: process.env.MYSQL_PASSWORD || 'jvBTVHRKFIztEBnOKYEBYXZGZAGwLLhW',
     database: process.env.MYSQL_DATABASE || 'railway',
     port: process.env.MYSQL_PORT || 3306,
-    connectionLimit: 10, // Máximo de conexiones simultáneas
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-
-// Conectar a la base de datos
-db.connect((err) => {
+// Probar la conexión a la base de datos
+db.getConnection((err, connection) => {
     if (err) {
         console.error('Error al conectar a la base de datos:', err);
-        return;
+    } else {
+        console.log('Conexión exitosa a la base de datos MySQL');
+        connection.release(); // Liberar la conexión del pool
     }
-    console.log('Conexión exitosa a la base de datos MySQL');
 });
 
 // Iniciar el servidor Express
@@ -42,99 +44,77 @@ appExpress.listen(port, () => {
     console.log(`Backend corriendo en http://localhost:${port}`);
 });
 
+// Función para generar un ID único aleatorio
+const generateId = () => Math.floor(Math.random() * 10000);
+
 // Endpoint para registrar un usuario
 appExpress.post('/register-user', (req, res) => {
-    try {
-        // Datos predeterminados con un ID aleatorio
-        const userData = {
-            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: req.body.name || "",  // Recibe el nombre o deja vacío
-            phone: req.body.phone || "",  // Recibe el teléfono o deja vacío
-            service: req.body.service || "",  // Recibe el servicio o deja vacío
-            amount: req.body.amount || 0,  // Recibe el monto o deja 0
-            location: req.body.location || "",  // Recibe la ubicación o deja vacío
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Fecha y hora actual
-        };
+    const { name = "", phone = "", service = "", amount = 0, location = "" } = req.body;
+    const userData = {
+        id: generateId(),
+        name,
+        phone,
+        service,
+        amount,
+        location,
+        registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
 
-        // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-        // Ejecutar la consulta
-        db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
-            if (err) {
-                console.error('Error al insertar usuario:', err);
-                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-            }
-
-            console.log('Usuario registrado:', userData);
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
-        });
-    } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: error.message });
-    }
+    db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err) => {
+        if (err) {
+            console.error('Error al insertar usuario:', err);
+            return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
+        }
+        console.log('Usuario registrado:', userData);
+        res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
+    });
 });
+
 // Endpoint para registrar un usuario manualmente
 appExpress.post('/manual-register', (req, res) => {
-    try {
-        // Datos manuales
-        const userData = {
-            name: "Juan Pérez",
-            phone: "123456789",
-            service: "Servicio A",
-            amount: 100,
-            location: "Ciudad X",
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
-        };
+    const userData = {
+        name: "Juan Pérez",
+        phone: "123456789",
+        service: "Servicio A",
+        amount: 100,
+        location: "Ciudad X",
+        registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
 
-        // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO users (name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?)';
 
-        // Ejecutar la consulta
-        db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
-            if (err) {
-                console.error('Error al insertar usuario manualmente:', err);
-                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-            }
-
-            console.log('Usuario registrado manualmente:', userData);
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
-        });
-    } catch (error) {
-        console.error('Error al registrar usuario manualmente:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
-    }
+    db.query(query, [userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err) => {
+        if (err) {
+            console.error('Error al insertar usuario manualmente:', err);
+            return res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: err.message });
+        }
+        console.log('Usuario registrado manualmente:', userData);
+        res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
+    });
 });
 
-// Endpoint para un nuevo registro manual desde el backend
+// Endpoint para registrar otro usuario manualmente desde el backend
 appExpress.post('/new-manual-register', (req, res) => {
-    try {
-        // Datos manuales con un ID fijo (puedes usar un generador único si lo prefieres)
-        const userData = {
-            id: Math.floor(Math.random() * 10000),  // Generar un ID único aleatorio
-            name: "Carlos Ramírez",
-            phone: "987654321",
-            service: "Servicio B",
-            amount: 200,
-            location: "Ciudad Y",
-            registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')  // Formato correcto
-        };
+    const userData = {
+        id: generateId(),
+        name: "Carlos Ramírez",
+        phone: "987654321",
+        service: "Servicio B",
+        amount: 200,
+        location: "Ciudad Y",
+        registrationDate: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
 
-        // Consulta SQL para insertar el usuario en la base de datos
-        const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO users (id, name, phone, service, amount, location, registrationDate) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-        // Ejecutar la consulta
-        db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err, result) => {
-            if (err) {
-                console.error('Error al insertar usuario manualmente:', err);
-                return res.status(500).json({ success: false, message: 'Error al registrar el usuario.', errorDetails: err.message });
-            }
-
-            console.log('Usuario registrado manualmente:', userData);
-            res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
-        });
-    } catch (error) {
-        console.error('Error al registrar usuario manualmente:', error);
-        res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: error.message });
-    }
+    db.query(query, [userData.id, userData.name, userData.phone, userData.service, userData.amount, userData.location, userData.registrationDate], (err) => {
+        if (err) {
+            console.error('Error al insertar usuario manualmente:', err);
+            return res.status(500).json({ success: false, message: 'Error al registrar el usuario manualmente.', errorDetails: err.message });
+        }
+        console.log('Usuario registrado manualmente:', userData);
+        res.json({ success: true, message: 'Usuario registrado con éxito.', user: userData });
+    });
 });
